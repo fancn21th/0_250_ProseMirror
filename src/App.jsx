@@ -1,3 +1,10 @@
-export default function App() {
-  return <h1 className="text-3xl font-bold underline">Hello world!</h1>;
-}
+import ProseMirrorEditor from "./ProseMirrorEditor";
+
+const App = () => (
+  <div>
+    <h1>ProseMirror + React Demo</h1>
+    <ProseMirrorEditor />
+  </div>
+);
+
+export default App;
