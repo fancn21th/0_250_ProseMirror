@@ -2,8 +2,6 @@ import React, { useEffect, useRef } from "react";
 import { Schema } from "prosemirror-model";
 import { EditorState } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
-import { DOMParser } from "prosemirror-model";
-import { schema as basicSchema } from "prosemirror-schema-basic";
 import { keymap } from "prosemirror-keymap";
 import { baseKeymap } from "prosemirror-commands";
 
