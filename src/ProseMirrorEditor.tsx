@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { Schema } from "prosemirror-model";
-import { EditorState } from "prosemirror-state";
+import { EditorState, Plugin } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 import { keymap } from "prosemirror-keymap";
 import { baseKeymap } from "prosemirror-commands";
@@ -8,16 +8,21 @@ import { baseKeymap } from "prosemirror-commands";
 // Define the schema
 const trivialSchema = new Schema({
   nodes: {
-    doc: { content: "paragraph+" },
-    paragraph: {
-      content: "text*",
-      group: "block",
-      toDOM: () => ["p", 0],
-      parseDOM: [{ tag: "p" }],
-    },
-    text: { inline: true, group: "inline" },
+    text: {},
+    doc: { content: "text*" },
   },
-  marks: {},
+});
+
+// Selection 监听插件
+const selectionPlugin = new Plugin({
+  view(editorView) {
+    return {
+      update(view) {
+        const { from, to } = view.state.selection;
+        console.log(`Selection changed: from ${from} to ${to}`);
+      },
+    };
+  },
 });
 
 // React Component
@@ -31,7 +36,7 @@ const ProseMirrorEditor = () => {
     // Initialize the editor state
     const state = EditorState.create({
       schema: trivialSchema,
-      plugins: [keymap(baseKeymap)],
+      plugins: [keymap(baseKeymap), selectionPlugin],
     });
 
     // Create the editor view
