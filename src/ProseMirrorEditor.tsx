@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Schema } from "prosemirror-model";
 import { EditorState, Plugin } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
@@ -87,10 +87,33 @@ const defaultContent = {
   ],
 };
 
+// Selection Plugin with Custom Content Concatenation
+const contentConcatPlugin = (setConcatenatedContent) =>
+  new Plugin({
+    view(editorView) {
+      return {
+        update(view) {
+          // Concatenate text content of all nodes
+          const doc = view.state.doc;
+          let concatenatedText = "";
+          doc.descendants((node) => {
+            if (node.isTextblock && node.textContent) {
+              concatenatedText += node.textContent + " ";
+            }
+          });
+
+          // Update state with the concatenated result
+          setConcatenatedContent(concatenatedText.trim());
+        },
+      };
+    },
+  });
+
 // React Component
 const ProseMirrorEditor = () => {
   const editorRef = useRef(null);
   const editorViewRef = useRef(null);
+  const [concatenatedContent, setConcatenatedContent] = useState("");
 
   useEffect(() => {
     if (!editorRef.current) return;
@@ -99,7 +122,11 @@ const ProseMirrorEditor = () => {
     const state = EditorState.create({
       doc: trivialSchema.nodeFromJSON(defaultContent),
       schema: trivialSchema,
-      plugins: [keymap(baseKeymap), selectionPlugin],
+      plugins: [
+        keymap(baseKeymap),
+        selectionPlugin,
+        contentConcatPlugin(setConcatenatedContent),
+      ],
     });
 
     // Create the editor view
@@ -117,10 +144,15 @@ const ProseMirrorEditor = () => {
   }, []);
 
   return (
-    <div
-      ref={editorRef}
-      className="p-2 border-2 rounded-md border-purple-500"
-    ></div>
+    <>
+      <div
+        ref={editorRef}
+        className="p-2 border-2 rounded-md border-purple-500"
+      ></div>
+      <div className="mt-4 p-2 border rounded-md bg-gray-100">
+        <strong>Concatenated Content:</strong> {concatenatedContent}
+      </div>
+    </>
   );
 };
 
